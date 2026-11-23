@@ -63,7 +63,7 @@ crypto-price-monitor/
 Clona el repositorio:
 
 ```bash
-git clone TU_URL_DEL_REPOSITORIO
+git clone https://github.com/valferreiro/crypto-price-monitor
 cd crypto-price-monitor
 ```
 
