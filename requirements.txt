@@ -1,0 +1,7 @@
+requests
+pymongo
+mysql-connector-python
+python-dotenv
+pandas
+matplotlib
+pytest
