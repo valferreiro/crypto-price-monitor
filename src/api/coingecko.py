@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BASE_URL = "https://api.coingecko.com/api/v3"
-APY_KEY = os.getenv("COINGECKO_API_KEY")
+API_KEY = os.getenv("COINGECKO_API_KEY")
 
 DEFAULT_COINS = ["bitcoin", "ethereum", "solana"]
 
@@ -25,7 +25,7 @@ def get_market_prices(
         Lista de diccionarios con información del mercado.
     """
 
-    if not APY_KEY:
+    if not API_KEY:
         raise ValueError("No se encontró COINGECKO_API_KEY en el archivo .env")
 
     if coin_ids is None:
@@ -38,7 +38,7 @@ def get_market_prices(
 
     headers = {
         "Accept": "application/json",
-        "x-cg-demo-api-key": APY_KEY,
+        "x-cg-demo-api-key": API_KEY,
     }
 
     params = {

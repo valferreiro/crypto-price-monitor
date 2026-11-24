@@ -5,13 +5,22 @@ from pymongo import MongoClient
 
 load_dotenv()
 
-def get_mongo_connection():
-    uri = os.getenv("MONGO_URI")
+
+def get_mongodb_connection():
+    uri = os.getenv("MONGODB_URI")
     database_name = os.getenv("MONGODB_DATABASE")
+
+    if not uri:
+        raise ValueError("No se encontró MONGODB_URI en el archivo .env")
+
+    if not database_name:
+        raise ValueError(
+            "No se encontró MONGODB_DATABASE en el archivo .env"
+        )
 
     client = MongoClient(
         uri,
-        serverSelectionTimeoutMS = 5000
+        serverSelectionTimeoutMS=5000,
     )
 
     client.admin.command("ping")

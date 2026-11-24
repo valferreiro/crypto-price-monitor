@@ -5,12 +5,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def get_myslq_connection():
+def get_mysql_connection():
     connection = mysql.connector.connect(
-        host = os.getenv("MYSQL.HOST"),
+        host = os.getenv("MYSQL_HOST"),
         port = int(os.getenv("MYSQL_PORT", 3306)),  # noqa: PLW1508
         user = os.getenv("MYSQL_USER"),
-        password = os.getenv("MYSLQ_PASSSWORD"),
+        password = os.getenv("MYSQL_PASSWORD"),
+        database = os.getenv("MYSQL_DATABASE"),
     )
 
     return connection

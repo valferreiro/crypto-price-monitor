@@ -1,10 +1,11 @@
 from pathlib import Path
 
-from src.database.mongodb import get_mongo_connection
-from src.database.mysql import get_myslq_connection
+from src.database.mongodb import get_mongodb_connection
+from src.database.mysql import get_mysql_connection
+
 
 def initialize_mysql():
-    connection = get_myslq_connection()
+    connection = get_mysql_connection()
     cursor = connection.cursor()
 
     try:
@@ -23,13 +24,13 @@ def initialize_mysql():
         connection.close()
 
 def initialize_mongodb():
-    client, database = get_mongo_connection()
+    client, database = get_mongodb_connection()
     
     try:
         collection = database["price_history"]
 
         collection.create_index(
-            [("coin_id", 1), ("redord_at", -1)]
+            [("coin_id", 1), ("recorded_at", -1)]
         )
 
         collection.create_index("symbol")

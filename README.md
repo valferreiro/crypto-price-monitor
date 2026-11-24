@@ -33,7 +33,6 @@ Mi agradecimiento a **Tecnolochicas Pro y Fundación Televisa** por impulsar opo
 
 ```text
 crypto-price-monitor/
-├── notebooks/
 ├── sql/
 ├── src/
 │   ├── api/
