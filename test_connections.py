@@ -1,14 +1,16 @@
-from src.database.mongodb import get_mongodb_connection
+from src.database.mongodb import (
+    close_mongodb_connection,
+    get_mongodb_connection,
+)
 from src.database.mysql import get_mysql_connection
 
 
 def main():
-    mongo_client = None
     mysql_connection = None
 
     try:
         # Conexión a MongoDB
-        mongo_client, mongo_db = get_mongodb_connection()
+        _, mongo_db = get_mongodb_connection()
         print("MongoDB conectado correctamente")
         print(f"Base de datos: {mongo_db.name}")
 
@@ -16,14 +18,13 @@ def main():
         mysql_connection = get_mysql_connection()
         print("MySQL conectado correctamente")
 
-    except Exception as error:
+    except Exception as error:  # noqa: BLE001
         print(f"Error de conexión: {error}")
 
     finally:
-        if mongo_client is not None:
-            mongo_client.close()
+        close_mongodb_connection()
 
-        if mysql_connection is not None and mysql_connection.is_connected():
+        if mysql_connection is not None:
             mysql_connection.close()
 
 

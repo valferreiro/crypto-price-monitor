@@ -1,4 +1,4 @@
-from src.database.mongodb import get_mongodb_connection
+from src.database.mongodb import get_mongodb_collection
 from src.database.mysql import get_mysql_connection
 
 MYSQL_INSERT_QUERY = """
@@ -61,37 +61,21 @@ def save_prices_mysql(prices: list[dict]) -> int:
         if cursor is not None:
             cursor.close()
 
-        if connection is not None and connection.is_connected():
+        if connection is not None:
             connection.close()
 
 
 def save_prices_mongodb(prices: list[dict]) -> int:
-    """Guarda las capturas de precios en MongoDB."""
+    """Guarda las capturas en MongoDB usando el cliente compartido."""
 
     if not prices:
         return 0
 
-    mongo_client = None
+    collection = get_mongodb_collection("price_history")
 
-    try:
-        mongo_client, database = get_mongodb_connection()
+    result = collection.insert_many(prices)
 
-        collection = database["price_history"]
-
-        collection.create_index(
-            [("coin_id", 1), ("recorded_at", -1)]
-        )
-
-        collection.create_index("symbol")
-
-        result = collection.insert_many(prices)
-
-        return len(result.inserted_ids)
-
-    finally:
-        if mongo_client is not None:
-            mongo_client.close()
-
+    return len(result.inserted_ids)
 
 def store_prices(prices: list[dict]) -> dict:
     """Almacena las capturas en MySQL y MongoDB."""

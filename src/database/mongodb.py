@@ -1,30 +1,59 @@
-import os
-
-from dotenv import load_dotenv
 from pymongo import MongoClient
 
-load_dotenv()
+from src.config import config
+
+# Cliente y base de datos compartidos
+_mongodb_client = None
+_mongodb_database = None
 
 
 def get_mongodb_connection():
-    uri = os.getenv("MONGODB_URI")
-    database_name = os.getenv("MONGODB_DATABASE")
+    """Obtiene el cliente y la base de datos reutilizables."""
 
-    if not uri:
-        raise ValueError("No se encontró MONGODB_URI en el archivo .env")
+    global _mongodb_client, _mongodb_database
 
-    if not database_name:
-        raise ValueError(
-            "No se encontró MONGODB_DATABASE en el archivo .env"
+    if _mongodb_client is None:
+        if not config.MONGODB_URI:
+            raise ValueError("Falta MONGODB_URI en el archivo .env")
+
+        if not config.MONGODB_DATABASE:
+            raise ValueError("Falta MONGODB_DATABASE en el archivo .env")
+
+        client = MongoClient(
+            config.MONGODB_URI,
+            serverSelectionTimeoutMS=5000,
+            maxPoolSize=20,
         )
 
-    client = MongoClient(
-        uri,
-        serverSelectionTimeoutMS=5000,
-    )
+        try:
+            client.admin.command("ping")
+        except Exception:
+            client.close()
+            raise
 
-    client.admin.command("ping")
+        _mongodb_client = client
+        _mongodb_database = client[config.MONGODB_DATABASE]
 
-    database = client[database_name]
+    return _mongodb_client, _mongodb_database
 
-    return client, database
+
+def get_mongodb_collection(collection_name: str):
+    """Obtiene una colección de la base de datos compartida."""
+
+    if not collection_name:
+        raise ValueError("El nombre de la colección no puede estar vacío")
+
+    _, database = get_mongodb_connection()
+
+    return database[collection_name]
+
+
+def close_mongodb_connection():
+    """Cierra el cliente compartido cuando termina la aplicación."""
+
+    global _mongodb_client, _mongodb_database
+
+    if _mongodb_client is not None:
+        _mongodb_client.close()
+        _mongodb_client = None
+        _mongodb_database = None

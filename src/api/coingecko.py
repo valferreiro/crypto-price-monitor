@@ -1,14 +1,17 @@
-import os
-
 import requests
-from dotenv import load_dotenv
 
-load_dotenv()
+from src.config import config
 
 BASE_URL = "https://api.coingecko.com/api/v3"
-API_KEY = os.getenv("COINGECKO_API_KEY")
 
 DEFAULT_COINS = ["bitcoin", "ethereum", "solana"]
+
+# Sesión HTTP reutilizable
+session = requests.Session()
+session.headers.update({
+    "Accept": "application/json",
+})
+
 
 def get_market_prices(
     coin_ids: list[str] | None = None,
@@ -25,8 +28,10 @@ def get_market_prices(
         Lista de diccionarios con información del mercado.
     """
 
-    if not API_KEY:
-        raise ValueError("No se encontró COINGECKO_API_KEY en el archivo .env")
+    if not config.COINGECKO_API_KEY:
+        raise ValueError(
+            "No se encontró COINGECKO_API_KEY en el archivo .env"
+        )
 
     if coin_ids is None:
         coin_ids = DEFAULT_COINS
@@ -37,8 +42,7 @@ def get_market_prices(
     endpoint = f"{BASE_URL}/coins/markets"
 
     headers = {
-        "Accept": "application/json",
-        "x-cg-demo-api-key": API_KEY,
+        "x-cg-demo-api-key": config.COINGECKO_API_KEY,
     }
 
     params = {
@@ -52,7 +56,7 @@ def get_market_prices(
     }
 
     try:
-        response = requests.get(
+        response = session.get(
             endpoint,
             headers=headers,
             params=params,
@@ -64,7 +68,9 @@ def get_market_prices(
         data = response.json()
 
         if not isinstance(data, list):
-            raise ValueError("La respuesta de CoinGecko no tiene el formato esperado.")
+            raise ValueError(  # noqa: TRY004
+                "La respuesta de CoinGecko no tiene el formato esperado."
+            )
 
         return data
 
